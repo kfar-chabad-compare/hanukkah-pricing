@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>encrypt</title>
+<style>body{font-family:Arial;background:#111;color:#eee;padding:24px}textarea{width:100%;height:120px;margin:8px 0;font-size:11px}input,button{padding:10px;font-size:16px;margin:4px 0;display:block;width:100%}</style>
+</head>
+<body>
+<h2>encryptor (internal)</h2>
+<form id="f" autocomplete="off">
+<input type="text" id="u" autocomplete="username" value="site-admin" style="display:none" aria-hidden="true">
+<input type="password" id="pw" autocomplete="current-password" placeholder="code">
+</form>
+<textarea id="khex" placeholder="optional: existing data key hex (leave empty to generate)"></textarea>
+<textarea id="plain" placeholder="plaintext json"></textarea>
+<button id="go" type="button">encrypt</button>
+<textarea id="out" placeholder="output: data.js content"></textarea>
+<textarea id="kout" placeholder="output: data key hex (KEEP PRIVATE)" ></textarea>
+<div id="st"></div>
+<script>
+function b64e(b){ var s=''; new Uint8Array(b).forEach(function(x){s+=String.fromCharCode(x);}); return btoa(s); }
+function hexToBytes(h){ var a=new Uint8Array(h.length/2); for(var i=0;i<a.length;i++) a[i]=parseInt(h.substr(i*2,2),16); return a; }
+function bytesToHex(b){ return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0');}).join(''); }
+document.getElementById('go').addEventListener('click',async function(){
+  var st=document.getElementById('st'); st.textContent='working...';
+  try{
+    var pw=document.getElementById('pw').value;
+    var kh=document.getElementById('khex').value.trim();
+    var K=kh?hexToBytes(kh):crypto.getRandomValues(new Uint8Array(32));
+    var iter=600000;
+    // wrap K with code-derived key
+    var wsalt=crypto.getRandomValues(new Uint8Array(16)), wiv=crypto.getRandomValues(new Uint8Array(12));
+    var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    var wrapKey=await crypto.subtle.deriveKey({name:'PBKDF2',salt:wsalt,iterations:iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt']);
+    var wct=await crypto.subtle.encrypt({name:'AES-GCM',iv:wiv},wrapKey,K);
+    // encrypt data with K
+    var iv=crypto.getRandomValues(new Uint8Array(12));
+    var dataKey=await crypto.subtle.importKey('raw',K,{name:'AES-GCM',length:256},false,['encrypt']);
+    var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},dataKey,new TextEncoder().encode(document.getElementById('plain').value));
+    var bundle={v:2,iv:b64e(iv),ct:b64e(ct),wrappedK:{salt:b64e(wsalt),iv:b64e(wiv),iter:iter,ct:b64e(wct)}};
+    document.getElementById('out').value='window.__ENC='+JSON.stringify(bundle)+';';
+    document.getElementById('kout').value=bytesToHex(K);
+    st.textContent='done';
+  }catch(e){ st.textContent='error: '+e.message; }
+});
+</script>
+</body>
+</html>
