@@ -30,6 +30,7 @@ header.top h1{font-size:20px;margin:0}
 .controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .controls input{flex:1;min-width:220px;text-align:right;padding:10px 14px}
 .controls button{width:auto;margin:0;padding:10px 16px;background:var(--card2);color:var(--txt);border:1px solid var(--line);font-weight:400}
+.sortsel{display:none}
 .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
 table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:1250px}
 th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
@@ -57,6 +58,7 @@ header.top h1{font-size:18px}
 .controls{flex-direction:column;align-items:stretch}
 .controls input{min-width:0;width:100%}
 .controls button{width:100%;padding:12px;min-height:44px}
+.sortsel{display:block;width:100%;padding:12px;min-height:44px;font-size:16px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--txt)}
 .controls .win{align-self:flex-start}
 .tblwrap{overflow-x:visible;border:0;border-radius:0;background:transparent}
 table{min-width:0;font-size:14px}
@@ -100,6 +102,18 @@ td.name .namecell span{font-weight:700;font-size:15px}
     <input type="text" id="q" placeholder="חיפוש לפי שם או מק&quot;ט..." aria-label="חיפוש">
     <button id="refresh" type="button">רענן נתונים</button>
     <button id="reset" type="button">איפוס מחירים שהוזנו</button>
+    <select id="sortsel" class="sortsel" aria-label="מיון">
+      <option value="shareSales:-1">% מכלל המכר - מהגבוה לנמוך</option>
+      <option value="shareSales:1">% מכלל המכר - מהנמוך לגבוה</option>
+      <option value="profit:-1">רווח ליחידה - מהגבוה לנמוך</option>
+      <option value="profit:1">רווח ליחידה - מהנמוך לגבוה</option>
+      <option value="shareInv:-1">% מכלל המלאי - מהגבוה לנמוך</option>
+      <option value="shareInv:1">% מכלל המלאי - מהנמוך לגבוה</option>
+      <option value="sku:1">מק&quot;ט - א-ת</option>
+      <option value="sku:-1">מק&quot;ט - ת-א</option>
+      <option value="name:1">שם מוצר - א-ת</option>
+      <option value="name:-1">שם מוצר - ת-א</option>
+    </select>
     <span class="win" id="updated" style="align-self:center"></span>
   </div>
   <div class="tblwrap">
@@ -209,6 +223,7 @@ function render(){
     '</tr>';
   });
   tb.innerHTML=html;
+  document.getElementById('sortsel').value=sortK+':'+sortDir;
   document.querySelectorAll('thead th').forEach(function(th){
     th.querySelector('.arw').textContent = th.dataset.k===sortK ? (sortDir<0?'▼':'▲') : '';
   });
@@ -220,6 +235,8 @@ document.getElementById('tb').addEventListener('input',function(e){
   if(v!==null&&isNaN(v)) return;
   savePrice(k,v); render();
 });
+document.getElementById('sortsel').addEventListener('change',function(e){
+  var p=e.target.value.split(':'); sortK=p[0]; sortDir=parseInt(p[1],10); render(); });
 document.getElementById('q').addEventListener('input',function(e){ query=e.target.value; render(); });
 document.getElementById('reset').addEventListener('click',function(){ if(confirm('לאפס את כל המחירים שהוזנו ידנית?')){ localStorage.removeItem(LS); render(); } });
 document.querySelectorAll('thead th').forEach(function(th){
