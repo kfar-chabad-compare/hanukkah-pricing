@@ -103,6 +103,7 @@ td.name .namecell span{font-weight:700;font-size:15px}
     <button id="refresh" type="button">רענן נתונים</button>
     <button id="reset" type="button">איפוס מחירים שהוזנו</button>
     <select id="sortsel" class="sortsel" aria-label="מיון">
+      <option value="sheet:0">סדר כמו באקסל</option>
       <option value="shareSales:-1">% מכלל המכר - מהגבוה לנמוך</option>
       <option value="shareSales:1">% מכלל המכר - מהנמוך לגבוה</option>
       <option value="profit:-1">רווח ליחידה - מהגבוה לנמוך</option>
@@ -150,7 +151,7 @@ td.name .namecell span{font-weight:700;font-size:15px}
 <script>
 var LS='hanukkah-pricing-v1';
 var PH="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='52' height='52'><rect width='52' height='52' fill='%23ffffff'/><g fill='none' stroke='%23b9c4d0' stroke-width='2'><rect x='12' y='14' width='28' height='24' rx='3'/><circle cx='20' cy='22' r='2.5'/><path d='M14 34l8-7 6 5 5-4 7 6'/></g></svg>";
-var DATA=null, sortK='shareSales', sortDir=-1, query='';
+var DATA=null, sortK='sheet', sortDir=1, query='';
 function fmt(n,d){ if(n===null||n===undefined||isNaN(n)) return '—';
   return n.toLocaleString('he-IL',{minimumFractionDigits:d===undefined?2:d,maximumFractionDigits:d===undefined?2:d}); }
 function fmt0(n){ if(n===null||n===undefined||isNaN(n)) return '—'; return n.toLocaleString('he-IL',{maximumFractionDigits:0}); }
@@ -192,7 +193,7 @@ function render(){
   });
   var keyMap={sku:'sku',name:'name',costVat:'costVat',oldUnit:'oldUnit',mAmt:'mAmt',aAmt:'aAmt',pNew:'pNew',profit:'_profit',shareSales:'_shareSales',shareInv:'_shareInv'};
   var kk=keyMap[sortK];
-  rows.sort(function(a,b){ var x=a[kk],y=b[kk];
+  if(sortK!=='sheet') rows.sort(function(a,b){ var x=a[kk],y=b[kk];
     if(x===null||x===undefined) x=sortDir<0?-Infinity:Infinity;
     if(y===null||y===undefined) y=sortDir<0?-Infinity:Infinity;
     if(typeof x==='string'||typeof y==='string') return sortDir*String(x||'').localeCompare(String(y||''),'he');
@@ -223,7 +224,7 @@ function render(){
     '</tr>';
   });
   tb.innerHTML=html;
-  document.getElementById('sortsel').value=sortK+':'+sortDir;
+  document.getElementById('sortsel').value=(sortK==='sheet'?'sheet:0':sortK+':'+sortDir);
   document.querySelectorAll('thead th').forEach(function(th){
     th.querySelector('.arw').textContent = th.dataset.k===sortK ? (sortDir<0?'▼':'▲') : '';
   });
@@ -236,7 +237,9 @@ document.getElementById('tb').addEventListener('input',function(e){
   savePrice(k,v); render();
 });
 document.getElementById('sortsel').addEventListener('change',function(e){
-  var p=e.target.value.split(':'); sortK=p[0]; sortDir=parseInt(p[1],10); render(); });
+  var p=e.target.value.split(':');
+  if(p[0]==='sheet'){ sortK='sheet'; sortDir=1; } else { sortK=p[0]; sortDir=parseInt(p[1],10); }
+  render(); });
 document.getElementById('q').addEventListener('input',function(e){ query=e.target.value; render(); });
 document.getElementById('reset').addEventListener('click',function(){ if(confirm('לאפס את כל המחירים שהוזנו ידנית?')){ localStorage.removeItem(LS); render(); } });
 document.querySelectorAll('thead th').forEach(function(th){
