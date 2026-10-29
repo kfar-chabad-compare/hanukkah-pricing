@@ -50,7 +50,29 @@ small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px;font-weight
 .note{color:var(--mut);font-size:12px;margin-top:10px;line-height:1.7}
 footer{border-top:1px solid var(--line);padding:16px;text-align:center;color:var(--mut);font-size:12.5px;margin-top:auto}
 footer a{margin:0 8px}
-@media(max-width:700px){.card{padding:22px}}
+@media(max-width:760px){
+.card{padding:22px}
+.wrap{padding:10px}
+header.top h1{font-size:18px}
+.controls{flex-direction:column;align-items:stretch}
+.controls input{min-width:0;width:100%}
+.controls button{width:100%;padding:12px;min-height:44px}
+.controls .win{align-self:flex-start}
+.tblwrap{overflow-x:visible;border:0;border-radius:0;background:transparent}
+table{min-width:0;font-size:14px}
+thead{display:none}
+tbody,tr{display:block;width:100%}
+tr{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;padding:8px 14px}
+td{display:block;border:0;padding:7px 0;text-align:left;white-space:normal}
+td[data-l]::after{content:"";display:block;clear:both}
+td[data-l]::before{content:attr(data-l);float:right;color:var(--mut);font-size:12.5px;padding-top:3px;margin-left:12px}
+td.name{text-align:right;border-bottom:1px solid var(--line);margin-bottom:4px;padding-bottom:10px}
+td.name .namecell{gap:12px}
+td.name .namecell span{font-weight:700;font-size:15px}
+.thumb{width:64px;height:64px}
+.pricein{width:120px;min-height:44px;padding:10px;font-size:16px}
+.note{font-size:11.5px}
+}
 </style>
 </head>
 <body>
@@ -174,16 +196,16 @@ function render(){
     var oldHtml=p.oldUnit?money(p.oldUnit)+(p.oldPack?'<small>כפולות: '+money(p.oldPack)+'</small>':''):'<span class="pct-none">—</span>';
     var newHtml='<input type="number" step="0.01" min="0" class="pricein'+(saved[p._k]!==undefined?' edited':'')+'" data-k="'+p._k+'" value="'+(pr===null||pr===undefined?'':pr)+'" aria-label="מחיר חדש ליחידה">'+(pr?'<small>לפני מע&quot;מ: '+money(exvat(pr))+'</small>':'');
     html+='<tr>'+
-      '<td class="num">'+(p.sku||'—')+'</td>'+
+      '<td class="num" data-l="מק&quot;ט">'+(p.sku||'—')+'</td>'+
       '<td class="name"><div class="namecell">'+(p.img?'<img class="thumb" loading="lazy" src="'+p.img+'" alt="" onerror="this.onerror=null;this.src=PH;">':'<img class="thumb" src="'+PH+'" alt="">')+'<span>'+(p.name||'—')+'</span></div></td>'+
-      '<td class="num">'+costHtml+'</td>'+
-      '<td class="num">'+oldHtml+'</td>'+
-      '<td class="num">'+mHtml+'</td>'+
-      '<td class="num">'+aHtml+'</td>'+
-      '<td class="num">'+newHtml+'</td>'+
-      '<td class="num">'+profitHtml+'</td>'+
-      '<td class="num">'+pct(p._shareSales)+'</td>'+
-      '<td class="num">'+pct(p._shareInv)+(p.invVal?'<small>שווי '+money(p.invVal)+'</small>':'')+'</td>'+
+      '<td class="num" data-l="עלות יחידה">'+costHtml+'</td>'+
+      '<td class="num" data-l="מחיר שנה שעברה">'+oldHtml+'</td>'+
+      '<td class="num" data-l="מכר מל&quot;ש 26">'+mHtml+'</td>'+
+      '<td class="num" data-l="מכר אנ&quot;ש 26">'+aHtml+'</td>'+
+      '<td class="num" data-l="מחיר חדש ליחידה">'+newHtml+'</td>'+
+      '<td class="num" data-l="רווח ליחידה">'+profitHtml+'</td>'+
+      '<td class="num" data-l="% מכלל המכר">'+pct(p._shareSales)+'</td>'+
+      '<td class="num" data-l="% מכלל המלאי">'+pct(p._shareInv)+(p.invVal?'<small>שווי '+money(p.invVal)+'</small>':'')+'</td>'+
     '</tr>';
   });
   tb.innerHTML=html;
