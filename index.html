@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>תמחור מוצרים - חנוכה</title>
+<style>
+:root{--bg:#0f1720;--card:#18222e;--card2:#1f2c3b;--line:#2b3b4e;--txt:#e8eef5;--mut:#9db0c3;--acc:#4da3ff;--good:#3ecf8e;--bad:#ff7b72;--warn:#f2c14e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",Arial,"Noto Sans Hebrew",sans-serif;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--acc)}
+.wrap{max-width:1500px;margin:0 auto;padding:16px;width:100%}
+#gate{display:flex;align-items:center;justify-content:center;flex:1;padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:32px;width:100%;max-width:400px;text-align:center}
+.card h1{font-size:22px;margin:0 0 8px}
+.card p{color:var(--mut);font-size:14px;margin:0 0 20px}
+input[type=password],input[type=text]{width:100%;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:16px;text-align:center}
+button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--acc);color:#06121f;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+button:hover{opacity:.9}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin-top:10px}
+.spin{color:var(--mut);font-size:14px;margin-top:10px}
+#app{display:none;flex:1}
+header.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+header.top h1{font-size:20px;margin:0}
+.win{color:var(--mut);font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px}
+.chip b{color:var(--good)}
+.controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.controls input{flex:1;min-width:220px;text-align:right;padding:10px 14px}
+.controls button{width:auto;margin:0;padding:10px 16px;background:var(--card2);color:var(--txt);border:1px solid var(--line);font-weight:400}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:1250px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+thead th{position:sticky;top:0;background:var(--card2);cursor:pointer;user-select:none;white-space:nowrap;font-size:12.5px;color:var(--mut)}
+thead th:hover{color:var(--txt)}
+thead th .arw{font-size:10px}
+tbody tr:hover{background:var(--card2)}
+td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px;font-weight:400}
+.name{max-width:300px}
+.thumb{width:52px;height:52px;background:#fff;border-radius:8px;border:1px solid var(--line);object-fit:contain;display:inline-block;vertical-align:middle;flex:none}
+.namecell{display:flex;gap:10px;align-items:center}
+.pricein{width:90px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
+.pricein.edited{border-color:var(--warn)}
+.pct-good{color:var(--good);font-weight:700}
+.pct-bad{color:var(--bad);font-weight:700}
+.pct-none{color:var(--mut);font-size:12px}
+.note{color:var(--mut);font-size:12px;margin-top:10px;line-height:1.7}
+footer{border-top:1px solid var(--line);padding:16px;text-align:center;color:var(--mut);font-size:12.5px;margin-top:auto}
+footer a{margin:0 8px}
+@media(max-width:700px){.card{padding:22px}}
+</style>
+</head>
+<body>
+<div id="gate">
+  <form class="card" id="gateform" autocomplete="off">
+    <h1>תמחור מוצרים - חנוכה</h1>
+    <p>אתר פרטי. יש להזין את קוד הכניסה.</p>
+    <input type="password" id="pw" autocomplete="current-password" placeholder="קוד כניסה" aria-label="קוד כניסה">
+    <button type="submit" id="enter">כניסה</button>
+    <div class="err" id="gateerr"></div>
+    <div class="spin" id="gatespin"></div>
+  </form>
+</div>
+
+<div id="app">
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>תמחור מוצרים - חנוכה</h1>
+      <div class="win" id="window"></div>
+    </div>
+    <div class="chips" id="chips"></div>
+  </header>
+  <div class="controls">
+    <input type="text" id="q" placeholder="חיפוש לפי שם או מק&quot;ט..." aria-label="חיפוש">
+    <button id="refresh" type="button">רענן נתונים</button>
+    <button id="reset" type="button">איפוס מחירים שהוזנו</button>
+    <span class="win" id="updated" style="align-self:center"></span>
+  </div>
+  <div class="tblwrap">
+  <table id="tbl">
+    <thead><tr>
+      <th data-k="sku">מק&quot;ט <span class="arw"></span></th>
+      <th data-k="name">שם מוצר <span class="arw"></span></th>
+      <th data-k="costVat">עלות יחידה <span class="arw"></span></th>
+      <th data-k="oldUnit">מחיר שנה שעברה <span class="arw"></span></th>
+      <th data-k="mAmt">מכר מל&quot;ש 26 <span class="arw"></span></th>
+      <th data-k="aAmt">מכר אנ&quot;ש 26 <span class="arw"></span></th>
+      <th data-k="pNew">מחיר חדש ליחידה <span class="arw"></span></th>
+      <th data-k="profit">רווח ליחידה <span class="arw"></span></th>
+      <th data-k="shareSales">% מכלל המכר <span class="arw"></span></th>
+      <th data-k="shareInv">% מכלל המלאי <span class="arw"></span></th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  </div>
+  <div class="note">
+    מכר מל&quot;ש: כמות וסכום כפי שיוצאו מהמערכת (לא צוין אם הסכום כולל מע&quot;מ) | מכר אנ&quot;ש: סכום <b>לא כולל מס</b>.<br>
+    עלות יחידה כוללת מע&quot;מ; המספר הקטן מתחתיה הוא העלות לפני מע&quot;מ. אחוז הרווח מחושב מהמחיר החדש שתוזן, ביחס לעלות כולל מע&quot;מ.<br>
+    % מכלל המכר: חלקו של המוצר מסך מכר מוצרי האתר בחלון חנוכה (מל&quot;ש + אנ&quot;ש). % מכלל המלאי: חלקו של המוצר מסך שווי המלאי וההזמנות (בעלות).<br>
+    מחירים שמוזנים ידנית נשמרים בדפדפן זה בלבד.
+  </div>
+</div>
+</div>
+
+<footer>
+  <a href="terms.html">תנאי שימוש</a> | <a href="accessibility.html">הצהרת נגישות</a> | © 2026 כל הזכויות שמורות
+</footer>
+
+<script src="data.js"></script>
+<script>
+var LS='hanukkah-pricing-v1';
+var PH="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='52' height='52'><rect width='52' height='52' fill='%23ffffff'/><g fill='none' stroke='%23b9c4d0' stroke-width='2'><rect x='12' y='14' width='28' height='24' rx='3'/><circle cx='20' cy='22' r='2.5'/><path d='M14 34l8-7 6 5 5-4 7 6'/></g></svg>";
+var DATA=null, sortK='shareSales', sortDir=-1, query='';
+function fmt(n,d){ if(n===null||n===undefined||isNaN(n)) return '—';
+  return n.toLocaleString('he-IL',{minimumFractionDigits:d===undefined?2:d,maximumFractionDigits:d===undefined?2:d}); }
+function fmt0(n){ if(n===null||n===undefined||isNaN(n)) return '—'; return n.toLocaleString('he-IL',{maximumFractionDigits:0}); }
+function money(n){ return fmt(n)+' ₪'; }
+function pct(n){ if(n===null||n===undefined||isNaN(n)) return '—';
+  if(n>0 && n<0.0005) return '<0.1%';
+  return (n*100).toLocaleString('he-IL',{maximumFractionDigits:1})+'%'; }
+function exvat(n){ return n/1.18; }
+function rowKey(p,i){ return (p.sku||'')+'|'+(p.name||''); }
+
+function loadSaved(){ try{ return JSON.parse(localStorage.getItem(LS)||'{}'); }catch(e){ return {}; } }
+function savePrice(k,v){ var s=loadSaved(); if(v===null) delete s[k]; else s[k]=v; localStorage.setItem(LS,JSON.stringify(s)); }
+
+function priceOf(p,k){ var s=loadSaved(); if(s[k]!==undefined) return s[k]; return p.pNew; }
+
+function profitFor(p,k){ var pr=priceOf(p,k);
+  if(pr===null||pr===undefined||isNaN(pr)) return null;
+  if(!p.costVat) return 'nocost';
+  return {pct:(pr-p.costVat)/pr, amt:pr-p.costVat}; }
+
+function totals(){ var ts=0,ti=0;
+  DATA.products.forEach(function(p){ ts+=(p.mAmt||0)+(p.aAmt||0); ti+=(p.invVal||0); });
+  return {sales:ts, inv:ti}; }
+
+function render(){
+  var T=totals(), tb=document.getElementById('tb'), q=query.trim().toLowerCase();
+  document.getElementById('chips').innerHTML=
+    '<span class="chip">סה&quot;כ מכר מוצרי האתר: <b>'+money(T.sales)+'</b></span>'+
+    '<span class="chip">סה&quot;כ שווי מלאי והזמנות: <b>'+money(T.inv)+'</b></span>'+
+    '<span class="chip">מוצרים: <b>'+DATA.products.length+'</b></span>';
+  var rows=DATA.products.map(function(p,i){ p._k=rowKey(p,i); p._i=i; return p; });
+  if(q) rows=rows.filter(function(p){ return (p.name||'').toLowerCase().indexOf(q)>=0 || (p.sku||'').toLowerCase().indexOf(q)>=0; });
+  rows.forEach(function(p){
+    var tot=(p.mAmt||0)+(p.aAmt||0);
+    p._shareSales=T.sales?tot/T.sales:0;
+    p._shareInv=T.inv?(p.invVal||0)/T.inv:0;
+    var pf=profitFor(p,p._k);
+    p._profit=(pf&&pf!=='nocost')?pf.pct:null;
+  });
+  var keyMap={sku:'sku',name:'name',costVat:'costVat',oldUnit:'oldUnit',mAmt:'mAmt',aAmt:'aAmt',pNew:'pNew',profit:'_profit',shareSales:'_shareSales',shareInv:'_shareInv'};
+  var kk=keyMap[sortK];
+  rows.sort(function(a,b){ var x=a[kk],y=b[kk];
+    if(x===null||x===undefined) x=sortDir<0?-Infinity:Infinity;
+    if(y===null||y===undefined) y=sortDir<0?-Infinity:Infinity;
+    if(typeof x==='string'||typeof y==='string') return sortDir*String(x||'').localeCompare(String(y||''),'he');
+    return sortDir*((x<y)?-1:(x>y?1:0)); });
+  var html='';
+  rows.forEach(function(p){
+    var saved=loadSaved(), pr=priceOf(p,p._k), pf=profitFor(p,p._k);
+    var profitHtml;
+    if(pf===null) profitHtml='<span class="pct-none">—</span>';
+    else if(pf==='nocost') profitHtml='<span class="pct-none">אין עלות 26</span>';
+    else profitHtml='<span class="'+(pf.pct>=0?'pct-good':'pct-bad')+'">'+pct(pf.pct)+'</span><small>'+money(pf.amt)+' ליחידה</small>';
+    var mHtml=(p.mQty||p.mAmt)?fmt0(p.mQty)+' יח\'<br>'+money(p.mAmt)+(p.mQty?'<small>ממוצע '+money(p.mAmt/p.mQty)+' ליח\'</small>':''):'<span class="pct-none">אין מכר בחלון</span>';
+    var aHtml=(p.aQty||p.aAmt)?fmt0(p.aQty)+' יח\'<br>'+money(p.aAmt)+(p.aQty?'<small>ממוצע '+money(p.aAmt/p.aQty)+' ליח\'</small>':''):'<span class="pct-none">אין מכר בחלון</span>';
+    var costHtml=p.costVat?money(p.costVat)+(p.costEx?'<small>לפני מע&quot;מ: '+money(p.costEx)+'</small>':''):'<span class="pct-none">—</span>';
+    var oldHtml=p.oldUnit?money(p.oldUnit)+(p.oldPack?'<small>כפולות: '+money(p.oldPack)+'</small>':''):'<span class="pct-none">—</span>';
+    var newHtml='<input type="number" step="0.01" min="0" class="pricein'+(saved[p._k]!==undefined?' edited':'')+'" data-k="'+p._k+'" value="'+(pr===null||pr===undefined?'':pr)+'" aria-label="מחיר חדש ליחידה">'+(pr?'<small>לפני מע&quot;מ: '+money(exvat(pr))+'</small>':'');
+    html+='<tr>'+
+      '<td class="num">'+(p.sku||'—')+'</td>'+
+      '<td class="name"><div class="namecell">'+(p.img?'<img class="thumb" loading="lazy" src="'+p.img+'" alt="" onerror="this.onerror=null;this.src=PH;">':'<img class="thumb" src="'+PH+'" alt="">')+'<span>'+(p.name||'—')+'</span></div></td>'+
+      '<td class="num">'+costHtml+'</td>'+
+      '<td class="num">'+oldHtml+'</td>'+
+      '<td class="num">'+mHtml+'</td>'+
+      '<td class="num">'+aHtml+'</td>'+
+      '<td class="num">'+newHtml+'</td>'+
+      '<td class="num">'+profitHtml+'</td>'+
+      '<td class="num">'+pct(p._shareSales)+'</td>'+
+      '<td class="num">'+pct(p._shareInv)+(p.invVal?'<small>שווי '+money(p.invVal)+'</small>':'')+'</td>'+
+    '</tr>';
+  });
+  tb.innerHTML=html;
+  document.querySelectorAll('thead th').forEach(function(th){
+    th.querySelector('.arw').textContent = th.dataset.k===sortK ? (sortDir<0?'▼':'▲') : '';
+  });
+}
+
+document.getElementById('tb').addEventListener('input',function(e){
+  if(!e.target.classList.contains('pricein')) return;
+  var k=e.target.dataset.k, v=e.target.value===''?null:parseFloat(e.target.value);
+  if(v!==null&&isNaN(v)) return;
+  savePrice(k,v); render();
+});
+document.getElementById('q').addEventListener('input',function(e){ query=e.target.value; render(); });
+document.getElementById('reset').addEventListener('click',function(){ if(confirm('לאפס את כל המחירים שהוזנו ידנית?')){ localStorage.removeItem(LS); render(); } });
+document.querySelectorAll('thead th').forEach(function(th){
+  th.addEventListener('click',function(){ var k=th.dataset.k;
+    if(k===sortK) sortDir*=-1; else { sortK=k; sortDir=(k==='name'||k==='sku')?1:-1; }
+    render(); });
+});
+
+function b64(s){ var b=Uint8Array.from(atob(s),function(c){return c.charCodeAt(0);}); return b; }
+async function unlock(pw){
+  PW=pw;
+  var enc=window.__ENC;
+  if(!enc){ document.getElementById('gateerr').textContent='האתר בתהליך הקמה. נסה שוב מאוחר יותר.'; return; }
+  document.getElementById('gatespin').textContent='פוענח...';
+  document.getElementById('gateerr').textContent='';
+  try{
+    var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    var wrapKey=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(enc.wrappedK.salt),iterations:enc.wrappedK.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+    var rawK=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(enc.wrappedK.iv)},wrapKey,b64(enc.wrappedK.ct));
+    var dataKey=await crypto.subtle.importKey('raw',rawK,{name:'AES-GCM',length:256},false,['decrypt']);
+    var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(enc.iv)},dataKey,b64(enc.ct));
+    DATA=JSON.parse(new TextDecoder().decode(pt));
+    document.getElementById('window').textContent='חלון מכר: '+DATA.window;
+    if(DATA.generatedAt) document.getElementById('updated').textContent='נתונים עודכנו: '+DATA.generatedAt;
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    render();
+  }catch(e){
+    PW=null;
+    document.getElementById('gatespin').textContent='';
+    document.getElementById('gateerr').textContent='קוד שגוי. נסה שוב.';
+  }
+}
+document.getElementById('gateform').addEventListener('submit',function(e){ e.preventDefault(); unlock(document.getElementById('pw').value); });
+document.getElementById('refresh').addEventListener('click',async function(){
+  var b=document.getElementById('refresh'); b.disabled=true; b.textContent='מרענן...';
+  try{
+    var t=await (await fetch('data.js?cb='+Date.now(),{cache:'no-store'})).text();
+    (0,eval)(t);
+    await unlock(PW);
+  }catch(e){ alert('הרענון נכשל. נסה שוב בעוד כמה דקות.'); }
+  b.disabled=false; b.textContent='רענן נתונים';
+});
+if(!window.__ENC){ document.getElementById('gateerr').textContent='האתר בתהליך הקמה. נסה שוב מאוחר יותר.'; }
+</script>
+</body>
+</html>
