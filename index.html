@@ -41,6 +41,7 @@ tbody tr:hover{background:var(--card2)}
 td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
 small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px;font-weight:400}
 .name{max-width:300px}
+.mult{color:var(--mut);font-size:11.5px;font-weight:400;margin-top:2px}
 .thumb{width:52px;height:52px;background:#fff;border-radius:8px;border:1px solid var(--line);object-fit:contain;display:inline-block;vertical-align:middle;flex:none}
 .namecell{display:flex;gap:10px;align-items:center}
 .pricein{width:90px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
@@ -212,7 +213,7 @@ function render(){
     var newHtml='<input type="number" step="0.01" min="0" class="pricein'+(saved[p._k]!==undefined?' edited':'')+'" data-k="'+p._k+'" value="'+(pr===null||pr===undefined?'':pr)+'" aria-label="מחיר חדש ליחידה">'+(pr?'<small>לפני מע&quot;מ: '+money(exvat(pr))+'</small>':'');
     html+='<tr>'+
       '<td class="num" data-l="מק&quot;ט">'+(p.sku||'—')+'</td>'+
-      '<td class="name"><div class="namecell">'+(p.img?'<img class="thumb" loading="lazy" src="'+p.img+'" alt="" onerror="this.onerror=null;this.src=PH;">':'<img class="thumb" src="'+PH+'" alt="">')+'<span>'+(p.name||'—')+'</span></div></td>'+
+      '<td class="name"><div class="namecell">'+(p.img?'<img class="thumb" loading="lazy" src="'+p.img+'" alt="" onerror="this.onerror=null;this.src=PH;">':'<img class="thumb" src="'+PH+'" alt="">')+'<span>'+(p.name||'—')+(p.multM?'<small class="mult">כפולות מל&quot;ש: '+p.multM+'</small>':'')+'<small class="mult">כפולות אנ&quot;ש: טרם הוזן</small></span></div></td>'+
       '<td class="num" data-l="עלות יחידה">'+costHtml+'</td>'+
       '<td class="num" data-l="מחיר שנה שעברה">'+oldHtml+'</td>'+
       '<td class="num" data-l="מכר מל&quot;ש 26">'+mHtml+'</td>'+
